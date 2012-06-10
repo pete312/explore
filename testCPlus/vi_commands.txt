@@ -1,0 +1,21 @@
+ctrl P          auto complete a word 
+ctrl o          cycle through history of past open files
+:vsplit <file>  vert split 
+:split <file>   horz split 
+ctrl w w        change window to other split screen
+v               visual select mode (from command mode)
+ctrl v          block visual mode (from command mode).
+y               yank visual selection
+P               paste  (command mode)
+ctrl V          paste copy buffer
+: e <file>      open new buffer with a file
+:bn             switch to next buffer 
+:bp             switch to previous buffer
+:b1             switch to buffer 1
+
+
+
+:make  <options>    invoke make with options
+:cc                 position cursor at current make error or warning.
+:cnext              position cursor at next make error or warning 
+:cprevious          Position cursor at prev make error or warning
