@@ -7,8 +7,6 @@ from sys import argv, exit
 import bottle
 import os
 
-import static_content
-
 
 exclude = ['exe']
 
