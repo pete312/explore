@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def funcA(message):
-    logger = logging.getLogger(__name__ + ".funcA")
+    logger = logging.getLogger()
     logger.info("at funcA \"%s\"", message)
     logger.warn("at funcA \"%s\"", message)
     logger.error("at funcA \"%s\"", message)
