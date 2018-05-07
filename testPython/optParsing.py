@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 _LOGLEVELS = ('CRITIAL','ERROR','WARNING','INFO','DEBUG')
 
 def get_options():
-    parser = ArgumentParser(description='Logger Demo.', epilog="best practice logger by pete312")
+    parser = ArgumentParser(description='CMD Option Demo.', epilog="best practice opt parser by pete312")
     parser.version = str(VERSION)
     parser.add_argument('--version', action='version', help='print the version and exit')
     parser.add_argument('--loglevel', choices=_LOGLEVELS, default='INFO', help='log to stdout')
