@@ -12,19 +12,23 @@ prog_name = os.path.basename(__file__).rsplit('.py', 1)[0]
 
 print "\nstarting %s as logger name %s " %( sys.argv[0], prog_name )
 
+# importing here will not make the module's  
 
-logger = logging.getLogger(prog_name)
+logger = logging.getLogger() # get the root logger
+import lib.logger_test_module as loglib
 
 
 def get_options(): 
     _LOGLEVELS = ('CRITIAL','ERROR','WARNING','WARN','INFO','DEBUG')
     parser = ArgumentParser(description='Logger Demo.', epilog="best practice logger by pete moore")
     parser.add_argument('--loglevel', '--verbosity', '-v', choices=_LOGLEVELS,  default='INFO', help='set the log level')
-    parser.add_argument('--stdout', '-s', type=bool, default=False, help='set the log level')
+    
+    parser.add_argument('--logfile', '-f', default=None, help='path to logfile')
+    parser.add_argument('--stdout', '-s', action='store_true', default=False, help='set the log level')
     return parser.parse_args()
 
 def setup_logger(logger, path_name=None, level="DEBUG", stdout=False):
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s : %(message)s")
+    formatter = logging.Formatter("%(asctime)s %(name)s line  %(lineno)s %(levelname)s : %(message)s")
     logger.setLevel(logging.getLevelName(level))
     
     if path_name:
@@ -33,7 +37,7 @@ def setup_logger(logger, path_name=None, level="DEBUG", stdout=False):
         logger.addHandler(loghandler)
     
     if stdout:
-        loghandler = logging.StreamHandler(sys.stdout)
+        loghandler = logging.StreamHandler()
         loghandler.setFormatter(formatter)
         logger.addHandler(loghandler)
         
@@ -49,7 +53,17 @@ if __name__ == "__main__":
     
     # decorate the logger with our settings.
     setup_logger(logger, level=args.loglevel, stdout=args.stdout)
+    
+    
     print args
     
+    #setup_logger(loglib.logger,level=args.loglevel, stdout=args.stdout)
     logger.info("test")
+    loglib.funcA("point 1")
+    import lib.logger_test_module as loglib
+    print "setting logging to level INFO"
+    logger.setLevel(logging.getLevelName('INFO'))
+    loglib.funcA("message at INFO level")
+    
+    
     print "done\n"
