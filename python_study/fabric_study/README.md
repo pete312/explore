@@ -78,7 +78,7 @@ These tests will not probably work in version 1.x fabric.
      .               stderr :
      .               stdout :  hello from host2
 
-(p3) usr1@host1 >
+    (p3) usr1@host1 >
 
 ------
 # sudo will demo the sudo() function listed in the fabfile.py 
