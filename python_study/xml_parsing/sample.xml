@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<data>
+    <dtag id="ras"  groups="all,host">
+        <host>ras</host>
+    </dtag>
+    <dtag id="atlas"  groups="all,host" >
+        <host>atlas</host>
+    </dtag>
+    <dtag id="halifas"  groups="all,host" >
+        <host>halifax</host>
+    </dtag>
+    <dtag id="my"  groups="all,people" >
+        <host>Ngoc My</host>
+    </dtag>
+    <dtag id="pete"  groups="all,people" >
+        <host>Peter</host>
+    </dtag>
+    
+</data> 
