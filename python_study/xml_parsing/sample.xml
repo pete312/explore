@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <data>
-    <dtag id="ras"  groups="all,host">
-        <host>ras</host>
+    <dtag id="host3"  groups="all,host">
+        <host>host3</host>
     </dtag>
-    <dtag id="atlas"  groups="all,host" >
-        <host>atlas</host>
+    <dtag id="host2"  groups="all,host" >
+        <host>host2</host>
     </dtag>
-    <dtag id="halifas"  groups="all,host" >
-        <host>halifax</host>
+    <dtag id="host1"  groups="all,host" >
+        <host>host1</host>
     </dtag>
     <dtag id="my"  groups="all,people" >
         <host>Ngoc My</host>
