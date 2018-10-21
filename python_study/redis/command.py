@@ -75,8 +75,18 @@ class Talk(Cmd):
             self.remotes[constr] = {'conn' : Connection(constr)}
             #Conection(constr)
             
+    def do_spawn(self, hosts):
+        self._send()
+            
     def do_send(self, message):
         self.req.publish('request-channel',message) 
+        
+        
+    def do_test_send(self, message):
+        remotename = 'halifax'
+        print('channel', 'request-channel-%s' %remotename )
+        print('message', "%s" % (message))
+        self.req.publish('request-channel-%s' %remotename, "%s" % (message))
             
 if __name__ == "__main__":
     cmd = Talk()
