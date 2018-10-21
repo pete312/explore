@@ -69,9 +69,9 @@ class Talk(Cmd):
     
     def do_start_remote(self, connstrs):
         self.lastcmd = ''
-        constrs = constrs.split(' ')
+        connstrs = connstrs.split(' ')
         
-        for constr in constrs:
+        for constr in connstrs:
             self.remotes[constr] = {'conn' : Connection(constr)}
             #Conection(constr)
             

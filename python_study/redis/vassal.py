@@ -1,30 +1,36 @@
 #!/bin/env python
 
+# a bootstrapping vassal to command
+# Author : Pete Moore 
+
+
 import sys, time, os
 from time import sleep
 from threading import Thread, Event
 import socket
 import json
 
+__version__ = '0.0.1'
 hostname = socket.gethostname()
-vassel_id = hostname
-REG_ACTIONS = ['restart']
+vassal_id = hostname
+REG_ACTIONS = ['restart','ls','pwd','protocol']
 
 config = {
-    'VE_BIN' = '/tmp/vv2/bin' 
+    'VE_BIN': '/tmp/vv2/bin',
+    'CMD_BROKER' : 'halifax'
 }
 
 class RequestChannel(Thread):
-    def __init__(self, queue, name='request-thread'):
+    def __init__(self, vassal_id, queue, name='request-thread'):
         """ constructor, setting initial variables """
         self._stopevent = Event( )
         self._sleepperiod = 0.1
-        self.queue = queue
+        self.gate = queue
         Thread.__init__(self, name=name)
-        r = redis.StrictRedis(host='halifax', port=6379, db=0)
+        r = redis.StrictRedis(host=config['CMD_BROKER'], port=6379, db=0)
         self.sub = r.pubsub()
         self.sub.subscribe('request-channel')
-        self.sub.subscribe('request-channel-%s' % vassel_id)
+        self.sub.subscribe('request-channel-%s' % vassal_id)
         
       
         
@@ -39,11 +45,10 @@ class RequestChannel(Thread):
                     continue
                 print(message)
                 
-                self.queue.put(message)
+                self.gate.put(message)
                 
             time.sleep(0.001)  # be nice to the system :)
 
-            
             self._stopevent.wait(self._sleepperiod)
         
     def join(self, timeout=None):
@@ -51,7 +56,50 @@ class RequestChannel(Thread):
         self._stopevent.set( )
         Thread.join(self, timeout)
         
-       
+        
+#class ResponseChannel(object):
+class ResponseChannel:
+    def __init__(self, vassal_id, register_actions=[]):
+        self.gate = redis.StrictRedis(host=config['CMD_BROKER'], port=6379, db=0)
+        self.registered_actions = register_actions
+        
+        self.vassal_id = vassal_id
+        print(ResponseChannel._tran_in('one'))
+        print(dir(ResponseChannel))
+        print(ResponseChannel._tran_in('one'))
+        
+    
+    def process(self, request, reply_channel=None):
+
+        action = request['data']
+        msg = None
+        if action in REG_ACTIONS:
+            if action == 'restart':
+                restart()
+            if action == 'protocol':
+                msg = {'action' : REG_ACTIONS, 'version' : __version__ }
+        else:
+            msg = "I don't know how to do that mother" % hostname
+            
+            
+        
+        response = self._tran_out(msg)
+
+        self.gate.publish('response-channel', response)
+    
+    def _tran_out(self,msg):
+        return json.dumps(
+            dict( 
+               vassal_id = self.vassal_id,
+               msg = msg
+            )
+            
+        )
+        
+    @classmethod
+    def _tran_in(this,that):
+        print(this,that)
+         
 
 def bootstrap():
     ''' bootstrap into a ve from standard lib '''
@@ -68,7 +116,7 @@ def restart(countdown=0):
         
     if isa_virtualenv():
         print('bouncing')
-        os.execve( __file__, sys.argv[0:])
+        os.execve( __file__, sys.argv[0:], os.environ)
     else:
         print('bootstrap')
         bootstrap()
@@ -86,51 +134,25 @@ def spawn(hosts):
     for host in hosts:
         c = fabric.Connect(host)
         c.run("hostname")
-        
-def process(stuff, reply_channel=None):
-
-    action = stuff['data']
-    msg = None
-    if action in REG_ACTIONS:
-        if action == 'restart':
-            restart()
-    else:
-        msg = "I %s don't know how to do that mother" % hostname
-        print()
-        
-    response = json.dumps(
-        dict( 
-           host = hostname,
-           msg = msg
-        )
-        
-    )
-    if getattr(process, 'reply_channel', None):
-        process.reply_channel.publish('response-channel', response)
-    else:
-        process.reply_channel = redis.StrictRedis(host='halifax', port=6379, db=0)
-        process.reply_channel.publish('response-channel', response)
+       
         
     
 def mainloop():
-    q = Queue()
-    req = RequestChannel(q)
-    req.start()
+    req_q = Queue()
+    rchan = RequestChannel(vassal_id, req_q)
+    resp = ResponseChannel(vassal_id, REG_ACTIONS)
+    
+    rchan.start()
 
     while True:
         try:
-            stuff = q.get(timeout=.4)
-            print("in::", stuff)
-            try:
-                data = json.loads(stuff)
-            except TypeError:
-                print('unable parse')
-                continue
-            process(stuff)
+            stuff = req_q.get(timeout=.4)
+            print(type(stuff), stuff)
+            resp.process(stuff)
         except Empty:
             pass
         
-    req.join()
+    rchan.join()
 
     
 if __name__ == '__main__':
@@ -138,7 +160,9 @@ if __name__ == '__main__':
     print(sys.path[1])
     if isa_virtualenv():
         import redis, fabric
-        from queue import Queue, Empty
+        # this will break from python 2 to 3
+        #from queue import Queue, Empty
+        from Queue import Queue, Empty
         mainloop()
     else:
         print("bootstraping")
