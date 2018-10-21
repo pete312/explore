@@ -1,0 +1,24 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+. ~/.color
+
+export PS1='\[\033[0;33m\]\w\n\[\033[0;31m\]\u@\[\033[0;33m\]\h\$ \[\033[m\]'
+alias grep='grep --color=auto'
+export PYTHONSTARTUP='/home/moorepe/.pythonstartup'
+alias noprompt='export PS1="\[\e[32;1m\]usr1@host1 $ \[\e[0m\]"'
+alias resetprompt='PS1="\[\033[0;33m\]\w\n\[\033[0;31m\]\u@\[\033[0;33m\]\h\$ \[\033[m\]"'
+alias prompt1='PS1="\[\033[0;33m\]\w\n\[\033[0;31m\]\u@\[\033[0;33m\]\h\$ \[\033[m\]"'
+alias prompt2='PS1="\[$f_lightblue\]┏━━━ \[$f_orange\]\w\n\[$f_lightblue\]┗━ \[\033[0;31m\]\u@\h\[$c_reset\]$ "'
+alias prompt3='PS1="\[$f_lightblue\]┏━━━ \[$f_orange\]\w \[$f_lightblue\](\[$f_red\]\u@\h\[$f_lightblue\]) \[$f_green\] \t \n\[$f_lightblue\]┗━ \[$c_reset\]$ "'
+alias prompt4='PS1="\[$f_lightblue\]╔═══ \[$f_orange\]\w \[$f_lightblue\](\[$f_lightred\]\u@\h\[$f_lightblue\]) \[$f_green\] \t \n\[$f_lightblue\]╚═ \[$c_reset\]$ "'
+alias prompt5='PS1="\n\[$f_e\]╔\[$f_6\]═\[$f_c\]═\[$f_4\]═ \[$f_orange\]\w \[$f_lightblue\](\[$f_lightred\]\u@\h\[$f_lightblue\]) \[$f_green\] \t \n\[$f_e\]╚\[$f_c\]═ \[$c_reset\]$ "'
+
