@@ -64,10 +64,6 @@ class ResponseChannel:
         self.registered_actions = register_actions
         
         self.vassal_id = vassal_id
-        print(ResponseChannel._tran_in('one'))
-        print(dir(ResponseChannel))
-        print(ResponseChannel._tran_in('one'))
-        
     
     def process(self, request, reply_channel=None):
 
@@ -80,9 +76,7 @@ class ResponseChannel:
                 msg = {'action' : REG_ACTIONS, 'version' : __version__ }
         else:
             msg = "I don't know how to do that mother" % hostname
-            
-            
-        
+         
         response = self._tran_out(msg)
 
         self.gate.publish('response-channel', response)
@@ -96,46 +90,40 @@ class ResponseChannel:
             
         )
         
-    @classmethod
-    def _tran_in(this,that):
-        print(this,that)
-         
+
 
 def bootstrap():
     ''' bootstrap into a ve from standard lib '''
     os.environ['PATH'] = "%s:%s" % (config['VE_BIN'], os.environ['PATH'])
     os.execve( __file__, sys.argv[0:], os.environ)
-    
+        
+
 def restart(countdown=0):
     print('restarting')
     for i in range(countdown,0):
         
         print('..', countdown - i)
         sleep(1)
-        
-        
+
     if isa_virtualenv():
         print('bouncing')
         os.execve( __file__, sys.argv[0:], os.environ)
     else:
         print('bootstrap')
         bootstrap()
-        
 
 def run_action(action):
     print(action)
     
-
 def isa_virtualenv():
-    print(sys.path[1])
     return not sys.path[1].startswith('/usr')
     
-def spawn(hosts):
+def spawn(hosts, resp):
     for host in hosts:
         c = fabric.Connect(host)
         c.run("hostname")
+        resp.puslish()
        
-        
     
 def mainloop():
     req_q = Queue()

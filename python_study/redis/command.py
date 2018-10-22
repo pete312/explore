@@ -1,11 +1,13 @@
-#!/bin/env python3
+#!/tmp/vv3/bin/python
 #microserver
 
 import redis, time
 from cmd import Cmd
-from fabric import Connection
+#from fabric import Connection
+from fabric.api import execute, run, env, hosts, roles, parallel
 from threading import Thread, Event
-
+import os, sys
+env.password = 's1lartfast'
 
 
 class ResponseChannel(Thread):
@@ -35,26 +37,25 @@ class ResponseChannel(Thread):
         self._stopevent.set( )
         Thread.join(self, timeout)
         
-        
-# if __name__ == "__main__":
-    # testthread = TestThread( )
-    # testthread.start( )
-    # import time
-    # time.sleep(5.0)
-    # testthread.join( )
-
+       
+    
+def run_parallel(host, *args, **kwargs):
+    #if type(hosts) == str:
+    env.hosts = [host]
+    @parallel
+    def do_work(c):
+        c.run('ls -l')
+    
+    execute(do_work, *args, **kwargs)
         
 class Talk(Cmd):
     def __init__(self):
         super().__init__()
+        self.prompt ='\n(all) ' 
         
         self.resp = ResponseChannel('response-channel')
         self.resp.start()
         
-        #r = redis.StrictRedis(host='halifax', port=6379, db=0)
-        #p = r.pubsub()
-        #self.sub = subscribe('response-channel')
-        #
         self.req = redis.StrictRedis(host='halifax', port=6379, db=0)
         self.remotes = {}
         
@@ -67,13 +68,28 @@ class Talk(Cmd):
         self.resp.join()
         return True
     
+    def do_address(self, ctx):
+        self.prompt = "(%s) " % ctx
+        
+    def do_reload(self, s):
+        os.execv( __file__, sys.argv[0:] )
+    
     def do_start_remote(self, connstrs):
         self.lastcmd = ''
-        connstrs = connstrs.split(' ')
         
-        for constr in connstrs:
-            self.remotes[constr] = {'conn' : Connection(constr)}
-            #Conection(constr)
+        #run_parallel(connstrs)
+        
+        #env.hosts = connstrs.split(' ')
+        
+        @parallel
+        def do(*args, **kwargs):
+            print('here', args , kwargs)
+            a = run('hostname')
+            run('sleep 1')
+            b = run('ls')
+            print(b)
+            #c.run('/tmp/vassel.py')
+        execute(do, *(1,2,3), hosts=connstrs.split(' '), **{'a': 23})
             
     def do_spawn(self, hosts):
         self._send()
@@ -81,6 +97,9 @@ class Talk(Cmd):
     def do_send(self, message):
         self.req.publish('request-channel',message) 
         
+    def do_test(self, hosts):
+        
+        execute()
         
     def do_test_send(self, message):
         remotename = 'halifax'
