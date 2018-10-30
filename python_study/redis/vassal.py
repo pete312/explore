@@ -3,12 +3,12 @@
 # a bootstrapping vassal to command
 # Author : Pete Moore 
 
-
 import sys, time, os
 from time import sleep
 from threading import Thread, Event
 import socket
 import json
+from queue import Queue, Empty
 
 __version__ = '0.0.1'
 hostname = socket.gethostname()
@@ -16,7 +16,7 @@ vassal_id = hostname
 REG_ACTIONS = ['restart','ls','pwd','protocol']
 
 config = {
-    'VE_BIN': '/tmp/vv2/bin',
+    'VE_BIN': '~.ve/bin',
     'CMD_BROKER' : 'halifax'
 }
 
@@ -29,6 +29,7 @@ class RequestChannel(Thread):
         Thread.__init__(self, name=name)
         r = redis.StrictRedis(host=config['CMD_BROKER'], port=6379, db=0)
         self.sub = r.pubsub()
+        self.sub.subscribe('request-api')
         self.sub.subscribe('request-channel')
         self.sub.subscribe('request-channel-%s' % vassal_id)
         
@@ -74,8 +75,10 @@ class ResponseChannel:
                 restart()
             if action == 'protocol':
                 msg = {'action' : REG_ACTIONS, 'version' : __version__ }
+            if action == 'ping':
+                msg = 'pong'
         else:
-            msg = "I don't know how to do that mother" % hostname
+            msg = "I don't know how to do that mother %s" % hostname
          
         response = self._tran_out(msg)
 
@@ -148,9 +151,7 @@ if __name__ == '__main__':
     print(sys.path[1])
     if isa_virtualenv():
         import redis, fabric
-        # this will break from python 2 to 3
-        #from queue import Queue, Empty
-        from Queue import Queue, Empty
+
         mainloop()
     else:
         print("bootstraping")

@@ -1,4 +1,4 @@
-#!/tmp/vv3/bin/python
+#!/bin/env python
 #microserver
 
 import redis, time
@@ -7,7 +7,7 @@ from cmd import Cmd
 from fabric.api import execute, run, env, hosts, roles, parallel
 from threading import Thread, Event
 import os, sys
-env.password = 's1lartfast'
+
 
 
 class ResponseChannel(Thread):
@@ -74,6 +74,13 @@ class Talk(Cmd):
     def do_reload(self, s):
         os.execv( __file__, sys.argv[0:] )
     
+    def do_ping(self, conn=''):
+        if conn:
+            self.sendto(conn, 'ping')
+        else:
+            self.send('ping')
+            
+    
     def do_start_remote(self, connstrs):
         self.lastcmd = ''
         
@@ -93,6 +100,13 @@ class Talk(Cmd):
             
     def do_spawn(self, hosts):
         self._send()
+        
+    def send(self, message):
+        self.req.publish('request-channel', message) 
+        
+    def sendto(self, conn, message):
+        for c in conn.split(' '):
+            self.req.publish('request-channel-%s' % c, message) 
             
     def do_send(self, message):
         self.req.publish('request-channel',message) 
