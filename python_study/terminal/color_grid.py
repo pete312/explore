@@ -11,9 +11,8 @@ def bg(n):
 RESET = "\x1b[0m"
 
 print("The 1st 16 colors")
-
 for i in range(0,16):
-    print(f"{fg(0)}{bg(i)}[{i:03d}]{bg(0)}" , end = RESET)
+    print(f"{fg(0)}{bg(i)}[{i:03d}]" , end = RESET)
 
 print("\nthe rest\n")
 for i in range(16,255,6):
